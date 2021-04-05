@@ -1,26 +1,28 @@
 version: '1.0'
 stages:
-  - prepare
-  - build
-  - test
+  - checkout
+  - package
+  - test  
 steps:
   main_clone:
     title: Cloning main repository...
     type: git-clone
     repo: '${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}'
     revision: '${{CF_REVISION}}'
-    stage: prepare
+    stage: checkout
   MyAppDockerImage:
     title: Building Docker Image
     type: build
-    stage: build
+    stage: package
     image_name: my-app-image
     working_directory: ./
-    tag: '${{CF_BRANCH_TAG_NORMALIZED}}'
+    tag: v1.0.1
     dockerfile: Dockerfile
+    disable_push: true
   MyUnitTests:
     title: Running Unit tests
-    stage: test
     image: '${{MyAppDockerImage}}'
-    commands:
-      - python setup.py test
+    stage: test 
+    commands: 
+      - pip install pytest
+      - pytest
